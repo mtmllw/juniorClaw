@@ -30,4 +30,3 @@ services:
 
     env_file:
       - .env
-    entrypoint: [ "docker", "compose", "run", "--rm", "openclaw-cli" ]
