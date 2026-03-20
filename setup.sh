@@ -23,7 +23,7 @@ fi
 echo "=> Running OpenClaw onboarding..."
 echo "   (This step may prompt you for API keys or setup options)"
 # The documentation says: docker compose run --rm openclaw-cli onboard
-docker compose run --rm openclaw-cli onboard
+docker compose run --rm openclaw-cli openclaw.mjs onboard
 
 echo ""
 echo "=> Starting OpenClaw Gateway in detached mode..."
