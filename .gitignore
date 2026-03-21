@@ -4,6 +4,7 @@
 
 # Docker logs or data if mounted locally
 logs/
+data/
 
 # OS generated files
 .DS_Store

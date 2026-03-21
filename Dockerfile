@@ -1,8 +1,6 @@
 # Use the official OpenClaw image as the base
 FROM ghcr.io/openclaw/openclaw:latest
 
-# Set the working directory
-WORKDIR /home/node/.openclaw
 
 USER root
 # Install dev roots (Python, Build Tools), Docker CLI (for Agent Sandboxing), and headless browser tools (xvfb, chromium)
