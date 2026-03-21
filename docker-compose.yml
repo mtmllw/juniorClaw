@@ -4,6 +4,7 @@ services:
     image: openclaw-custom:latest
     container_name: openclaw-gateway
     restart: unless-stopped
+    command: npx openclaw start
     group_add:
       - "${DOCKER_GID:-982}" # Host docker group ID for socket permissions
     ports:
