@@ -1,8 +1,11 @@
 services:
   openclaw-gateway:
-    image: ghcr.io/openclaw/openclaw:latest
+    build: .
+    image: openclaw-custom:latest
     container_name: openclaw-gateway
     restart: unless-stopped
+    group_add:
+      - "${DOCKER_GID:-982}" # Host docker group ID for socket permissions
     ports:
       - "127.0.0.1:18789:18789"
     volumes:
@@ -12,7 +15,7 @@ services:
     env_file:
       - .env
     environment:
-      - OPENCLAW_GATEWAY_BIND=lan
+      - OPENCLAW_GATEWAY_BIND=0.0.0.0
       - OPENCLAW_SANDBOX=1
     healthcheck:
       test: [ "CMD", "curl", "-fsS", "http://127.0.0.1:18789/healthz" ]
@@ -21,10 +24,13 @@ services:
       retries: 3
 
   openclaw-cli:
-    image: ghcr.io/openclaw/openclaw:latest
+    build: .
+    image: openclaw-custom:latest
     container_name: openclaw-cli
     profiles:
       - cli
+    group_add:
+      - "${DOCKER_GID:-982}" # Host docker group ID
     volumes:
       - ./data:/home/node/.openclaw
 

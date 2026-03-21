@@ -11,8 +11,8 @@ RUN apt-get update && \
         git curl jq \
         python3 python3-pip python3-venv \
         build-essential \
-        docker.io docker-compose-plugin \
-        xvfb libnss3 libasound2t64 chromium && \
+        docker.io \
+        xvfb libnss3 libasound2 chromium && \
     rm -rf /var/lib/apt/lists/*
 USER node
 
