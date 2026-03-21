@@ -48,5 +48,5 @@ Then, open your web browser and go to:
 - **View Logs**: `docker compose logs -f openclaw-gateway`
 - **Stop Services**: `docker compose down`
 - **Restart Services**: `docker compose restart`
-- **Open Dashboard CLI**: `docker compose run --rm openclaw-cli dashboard --no-open`
-- **Add Telegram Channel**: `docker compose run --rm openclaw-cli channels add --channel telegram --token "<bot_token>"`
+- **Open Dashboard CLI**: `docker compose run --rm openclaw-cli npx openclaw dashboard --no-open`
+- **Add Telegram Channel**: `docker compose run --rm openclaw-cli npx openclaw channels add --channel telegram --token "<bot_token>"`

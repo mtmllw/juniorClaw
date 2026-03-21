@@ -23,8 +23,8 @@ fi
 
 echo "=> Running OpenClaw onboarding..."
 echo "   (This step may prompt you for API keys or setup options)"
-# The documentation says: docker compose run --rm openclaw-cli onboard
-docker compose run --rm openclaw-cli onboard
+# The documentation says: docker compose run --rm openclaw-cli npx openclaw onboard
+docker compose run --rm openclaw-cli npx openclaw onboard
 
 echo ""
 echo "=> Starting OpenClaw Gateway in detached mode..."
@@ -38,5 +38,5 @@ echo "📊 To view logs, run:"
 echo "   docker compose logs -f openclaw-gateway"
 echo ""
 echo "🚀 To open the dashboard CLI, run:"
-echo "   docker compose run --rm openclaw-cli dashboard --no-open"
+echo "   docker compose run --rm openclaw-cli npx openclaw dashboard --no-open"
 echo ""
