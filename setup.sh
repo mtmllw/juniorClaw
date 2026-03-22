@@ -32,6 +32,11 @@ if [ "$(stat -c %u ./data)" -ne 1000 ] || [ "$(stat -c %u ./workspace)" -ne 1000
   sudo chown -R 1000:1000 ./data ./workspace
 fi
 
+echo "=> Running OpenClaw Headless Onboarding..."
+# The non-interactive flag ensures it reads from .env and generates config.json without prompting
+docker compose run --rm openclaw-cli npx openclaw onboard --non-interactive
+
+
 
 echo ""
 echo "=> Starting OpenClaw Gateway in detached mode..."
