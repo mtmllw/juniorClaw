@@ -32,3 +32,18 @@ Once you have written code and verified it runs successfully via tests, you must
 4. If a remote is configured and you are asked to push: `git push origin HEAD`
 
 *Important*: If you encounter issues pushing, check if a GitHub Personal Access Token (PAT) was provided by the user in the prompt or environment.
+
+## 🧾 4. Sending Proof of Work (Terminal & Screenshots)
+Before ending your task, you **MUST** provide visual and technical proof to the user that the project successfully runs in a headless environment.
+
+1. **Terminal Proof**: First, copy the exact STDOUT test results (e.g. from `npm test` or the server boot logs) and format them in a markdown code block inside your final message. Do not summarize them; show the raw proof.
+2. **Visual Screenshot Proof**:
+   Since the server runs headless, use `xvfb` and `imagemagick` to capture what the screen actually looks like:
+   - Start your app inside `xvfb-run` in the background (e.g. `xvfb-run -a -s "-screen 0 1280x720x24" python3 app.py &`).
+   - Wait 3 seconds for the UI to render.
+   - Capture the X11 Display buffer: `DISPLAY=:99 import -window root proof.png`
+   - Upload the screenshot directly to the user via Telegram using the injected environment variables:
+     ```bash
+     curl -F photo=@proof.png -F chat_id=$TELEGRAM_CHAT_ID https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendPhoto
+     ```
+   - Kill the background app process when finished.
