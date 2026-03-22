@@ -10,10 +10,20 @@ echo ""
 if [ ! -f .env ]; then
   echo "=> Warning: .env file not found. Creating a default one..."
   cp .env.example .env
-  echo "=> Please edit .env to add your API keys!"
+  
+  echo "=> Generating a secure Gateway Token..."
+  RANDOM_TOKEN=$(openssl rand -hex 16)
+  sed -i "s/^OPENCLAW_GATEWAY_TOKEN=$/OPENCLAW_GATEWAY_TOKEN=$RANDOM_TOKEN/" .env
+  echo "=========================================================="
+  echo "🔑 Your auto-generated Gateway Token is: $RANDOM_TOKEN"
+  echo "   (Save this token, you'll need it for the dashboard login!)"
+  echo "=========================================================="
+  
+  echo "❌ SETUP STOPPED: You must open the '.env' file and configure your API keys and GitHub username before running the agent!"
+  exit 1
 fi
 
-# Auto-generate Gateway Token if it's empty
+# Auto-generate Gateway Token if it's empty on a pre-existing file
 if grep -q "^OPENCLAW_GATEWAY_TOKEN=$" .env; then
   echo "=> Generating a secure Gateway Token..."
   RANDOM_TOKEN=$(openssl rand -hex 16)
@@ -23,6 +33,26 @@ if grep -q "^OPENCLAW_GATEWAY_TOKEN=$" .env; then
   echo "   (Save this token, you'll need it for the dashboard login!)"
   echo "=========================================================="
 fi
+
+# Load variables to validate them
+echo "=> Validating configuration..."
+set -o allexport; source .env; set +o allexport
+
+# Validate LLM API Key
+if [ -z "$OPENAI_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ] && [ -z "$GEMINI_API_KEY" ] && [ -z "$MISTRAL_API_KEY" ] && [ -z "$GROQ_API_KEY" ]; then
+  echo "❌ Error: No LLM Provider API Key found!"
+  echo "   Please open .env and add at least one API key (e.g., OPENAI_API_KEY) so the agent has a brain."
+  exit 1
+fi
+
+# Validate GitHub Variables
+if [ -z "$GITHUB_TOKEN" ] || [ -z "$TARGET_GITHUB_USER" ]; then
+  echo "❌ Error: GitHub configuration is incomplete!"
+  echo "   Please open .env and provide your GITHUB_TOKEN and TARGET_GITHUB_USER so the agent can interact with Github autonomously."
+  exit 1
+fi
+
+echo "✅ Configuration validated successfully!"
 
 echo "=> Preparing local data and workspace directories..."
 mkdir -p ./data ./workspace
