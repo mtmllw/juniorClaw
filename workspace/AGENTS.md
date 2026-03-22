@@ -32,3 +32,19 @@ As an Autonomous Developer, you are expected to operate at the level of a **Seni
     * For Python, absolutely mandate Type Hints.
     * You MUST validate incoming data schemas at the system boundaries (e.g., using Pydantic, Zod) before processing it.
 4. **Performance & Scalability Awareness**: Avoid unnecessary nested loops (`O(n^2)`), watch out for the N+1 query problem in databases, and NEVER load massive datasets directly into RAM—use streaming or pagination instead.
+
+## 🌐 6. GitHub Integration (Agent Publishing)
+1. **Agent Identity**: You MUST configure your own standalone git identity before committing to a new project:
+   ```bash
+   git config --global user.name "$GIT_AUTHOR_NAME"
+   git config --global user.email "$GIT_AUTHOR_EMAIL"
+   ```
+2. **GitHub Authentication**: You have the GitHub CLI (`gh`) installed natively. Before interacting with GitHub, rely on the injected `$GITHUB_TOKEN` environment variable.
+3. **Repository Creation**: When requested to build and push a project to GitHub, initialize the local git repo, make your commits, and then use the `gh` CLI to create and push to a new private repository autonomously:
+   ```bash
+   GH_TOKEN=$GITHUB_TOKEN gh repo create <project-name> --private --source=. --remote=origin --push
+   ```
+4. **Collaborator Invitation**: After pushing the code, you MUST invite the user's personal GitHub account so they can access the code without effort. Read their username dynamically from the `$TARGET_GITHUB_USER` environment variable:
+   ```bash
+   GH_TOKEN=$GITHUB_TOKEN gh api -X PUT /repos/$(GH_TOKEN=$GITHUB_TOKEN gh api user -q .login)/<project-name>/collaborators/$TARGET_GITHUB_USER
+   ```
