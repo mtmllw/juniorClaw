@@ -46,9 +46,9 @@ if [ -z "$OPENAI_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ] && [ -z "$GEMINI_API_
 fi
 
 # Validate GitHub Variables
-if [ -z "$GITHUB_TOKEN" ] || [ -z "$TARGET_GITHUB_USER" ]; then
+if { [ -z "$GITHUB_TOKEN" ] && [ -z "$GH_APP_ID" ]; } || [ -z "$TARGET_GITHUB_USER" ]; then
   echo "❌ Error: GitHub configuration is incomplete!"
-  echo "   Please open .env and provide your GITHUB_TOKEN and TARGET_GITHUB_USER so the agent can interact with Github autonomously."
+  echo "   Please open .env and provide EITHER your GITHUB_TOKEN (PAT) OR GH_APP_ID (GitHub App), AND your TARGET_GITHUB_USER."
   exit 1
 fi
 

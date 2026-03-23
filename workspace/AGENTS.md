@@ -36,12 +36,15 @@ Reading the entire project history is inefficient. You must maintain siloed memo
    git config --global user.name "$GIT_AUTHOR_NAME"
    git config --global user.email "$GIT_AUTHOR_EMAIL"
    ```
-2. **GitHub Authentication**: You have the GitHub CLI (`gh`) installed natively. Before interacting with GitHub, rely on the injected `$GITHUB_TOKEN` environment variable.
-3. **Repository Creation**: When requested to build and push a project to GitHub, initialize the local git repo, make your commits, and then use the `gh` CLI to create and push to a new private repository autonomously:
+2. **GitHub Authentication**: You have the GitHub CLI (`gh`) and a token generator script installed. Before interacting with GitHub, execute this script to dynamically export your token (this safely handles both GitHub Apps and PATs):
    ```bash
-   GH_TOKEN=$GITHUB_TOKEN gh repo create <project-name> --private --source=. --remote=origin --push
+   export GH_TOKEN=$(python3 /home/node/.openclaw/workspace/scripts/get_gh_app_token.py)
+   ```
+3. **Repository Creation**: When requested to build and push a project to GitHub, initialize the local git repo, make your commits, ensure your `GH_TOKEN` is exported, and then execute:
+   ```bash
+   gh repo create <project-name> --private --source=. --remote=origin --push
    ```
 4. **Collaborator Invitation**: After pushing the code, you MUST invite the user's personal GitHub account explicitly via the `$TARGET_GITHUB_USER` environment variable:
    ```bash
-   GH_TOKEN=$GITHUB_TOKEN gh api -X PUT /repos/$(GH_TOKEN=$GITHUB_TOKEN gh api user -q .login)/<project-name>/collaborators/$TARGET_GITHUB_USER
+   gh api -X PUT /repos/$(gh api user -q .login)/<project-name>/collaborators/$TARGET_GITHUB_USER
    ```
