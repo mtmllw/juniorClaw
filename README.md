@@ -24,6 +24,15 @@ cp .env.example .env
 nano .env
 ```
 
+#### First Time Setup: GitHub App Identity
+To use GitHub App authentication (recommended):
+1. Create a GitHub App, install it on your repository, and generate a `.pem` Private Key.
+2. Place the downloaded `.pem` file into the `data/` directory and rename it to `github-app.pem`.
+3. Inside your `.env` file, provide your App configuration:
+   - `GH_APP_ID=your_app_id`
+   - `GH_APP_INSTALLATION_ID=your_installation_id`
+   - `GH_APP_PRIVATE_KEY_PATH=/home/node/.openclaw/github-app.pem` *(Keep this path exactly!)*
+
 ### 2. Auto-Boot
 Execute the foolproof setup script. It will run pre-flight checks and boot silently:
 ```bash
