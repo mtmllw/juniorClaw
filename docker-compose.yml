@@ -18,7 +18,7 @@ services:
       - OPENCLAW_GATEWAY_BIND=0.0.0.0
       - OPENCLAW_SANDBOX=1
     healthcheck:
-      test: [ "CMD", "curl", "-fsS", "http://127.0.0.1:18789/healthz" ]
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/18789'"]
       interval: 30s
       timeout: 10s
       retries: 3
