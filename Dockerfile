@@ -18,6 +18,10 @@ RUN apt-get update && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
     apt-get update && apt-get install -y gh && \
     rm -rf /var/lib/apt/lists/*
+
+# Fix npm update warning by always forcing the latest version globally
+RUN npm install -g npm@latest
+
 USER node
 
 # Use standard entrypoint from the base image
