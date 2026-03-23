@@ -64,7 +64,7 @@ fi
 
 echo "=> Running OpenClaw Headless Onboarding..."
 # The non-interactive flag ensures it reads from .env and generates config.json without prompting
-docker compose run --rm openclaw-cli npx openclaw onboard --non-interactive
+docker compose run --rm openclaw-cli npx openclaw onboard --non-interactive --accept-risk
 
 
 
