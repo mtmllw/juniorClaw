@@ -1,52 +1,50 @@
-# OpenClaw Docker Environment (VDS Optimized)
+# JuniorClaw: Enterprise Autonomous Developer (VDS Optimized)
 
-This project provides a fast, containerized installation of OpenClaw, specifically optimized and secured for deployment on a Virtual Dedicated Server (VDS) or VPS.
+JuniorClaw is a highly customized, fast, containerized installation of OpenClaw. It serves as an autonomous, self-healing **Senior Engineering Team** operating natively within a headless Virtual Dedicated Server (VDS) or VPS.
 
-## Security Considerations for VDS
+## 🌟 Key Enterprise Features
 
-By default, Docker bypasses standard firewalls (like UFW) when publishing ports. To prevent unauthorized access to your OpenClaw Control UI over the public internet, this setup binds the gateway port **strictly to `127.0.0.1` (localhost)** on your server.
+1. **True Headless Plug-and-Play**: 
+   The `setup.sh` script automatically detects missing `.env` variables, securely auto-generates your Gateway Token natively using `openssl`, enforces pre-flight validation checks for API keys, and securely boots the background OpenClaw service without any human wizard prompts (`--non-interactive`).
+2. **Master Orchestrator Architecture (`AGENTS.md`)**:
+   Instead of a simple recursive agent, JuniorClaw uses a Hierarchical Persona Orchestrator. The Master Agent breaks down your prompts, assigns roles (e.g., Lead Architect, Frontend Dev, QA Tester), and coordinates them using a segmented Memory Architecture (`tasks.md`) to prevent LLM context pollution.
+3. **Dynamic GitHub Publishing**: 
+   Equipped with a native GitHub CLI (`gh`) and a custom Python JWT token generator (`get_gh_app_token.py`), the agent can autonomously spin up private repositories, commit its work, dynamically assume GitHub App Identities (bypassing static PATs), and instantly invite you as a collaborator.
+4. **Visual Proof of Work (Telegram)**:
+   Since JuniorClaw runs on a headless server, it cannot natively "see" the UI it builds. We injected an X11 virtual framebuffer (`xvfb`) and `imagemagick` into the Docker container. Before completing a project, the QA Persona boots the app, snaps a screenshot of the virtual display, and instantly uploads the picture and terminal test results to your phone via the Telegram API.
 
-This means the dashboard is **not** publicly accessible by default. You must use SSH tunneling to access it securely.
+---
 
 ## 🚀 Installation & Setup
 
 ### 1. Configure Environment
-
-First, edit the `.env` file and add your provider API keys.
-If you don't have a `.env` file yet, copy it from the example (the setup script will also do this):
+Provide your Provider API keys, Telegram Bot Tokens, and GitHub Identities cleanly via `.env`:
 ```bash
 cp .env.example .env
 nano .env
 ```
 
-### 2. Run the Setup Script
-
-Execute the provided setup script. It will run the OpenClaw onboarding process (generating your gateway token) and start the services in the background.
-
+### 2. Auto-Boot
+Execute the foolproof setup script. It will run pre-flight checks and boot silently:
 ```bash
 chmod +x setup.sh
 ./setup.sh
 ```
+*(If your `.env` is missing critical values, it will safely abort and tell you exactly what is missing!)*
 
 ### 3. Access the Control UI via SSH Tunnel
+By default, Docker bypasses standard firewalls (like UFW). To prevent unauthorized access, this setup uses `network_mode: "host"` binding port strictly to your server's true `127.0.0.1`.
 
-To access the UI securely from your local machine, open a new terminal on your computer and establish an SSH tunnel to your VDS:
-
+Open a new terminal on your local computer and establish an SSH tunnel:
 ```bash
-# Run this from your LOCAL COMPUTER, not the VDS
 ssh -L 18789:127.0.0.1:18789 your_user@your_vds_ip
 ```
-*(Keep this terminal open while you want to use the dashboard.)*
-
-Then, open your web browser and go to:
-**http://127.0.0.1:18789**
+Then, access the dashboard at **http://127.0.0.1:18789** using the Auto-Generated Gateway Token printed in your terminal!
 
 ---
 
-## Useful Commands
+## 🛠️ Modifying Agent Behavior
+The brains of JuniorClaw exist entirely in your `./workspace/` directory.
 
-- **View Logs**: `docker compose logs -f openclaw-gateway`
-- **Stop Services**: `docker compose down`
-- **Restart Services**: `docker compose restart`
-- **Open Dashboard CLI**: `docker compose run --rm openclaw-cli npx openclaw dashboard --no-open`
-- **Add Telegram Channel**: `docker compose run --rm openclaw-cli npx openclaw channels add --channel telegram --token "<bot_token>"`
+- **`AGENTS.md`**: The Iron-Law rulebook forcing the AI to orchestrate personas and push to GitHub.
+- **`skills/autonomous-developer/SKILL.md`**: The technical workflow forcing the agent to snap screenshots with ImageMagick and run tests in headless environments before talking to you.
