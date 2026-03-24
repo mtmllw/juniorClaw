@@ -69,7 +69,28 @@ echo "=> Running OpenClaw Headless Onboarding..."
 # The non-interactive flag ensures it reads from .env and generates config.json without prompting
 docker compose run --rm openclaw-cli npx openclaw onboard --non-interactive --accept-risk --skip-health
 
+# Workaround: Forcing custom .env features into the newly created config using jq
+if [ -n "$DEFAULT_MODEL" ]; then
+    echo "=> Injecting custom DEFAULT_MODEL ($DEFAULT_MODEL) directly into backend configuration..."
+    CONFIG_FILE="./data/openclaw.json"
+    [ -f "./data/config.json" ] && CONFIG_FILE="./data/config.json"
+    
+    if [ -f "$CONFIG_FILE" ]; then
+        # Use a temporary file to safely write and replace the config
+        jq ".agents.defaults.model.primary = \"$DEFAULT_MODEL\"" "$CONFIG_FILE" > "$CONFIG_FILE.tmp" && mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
+        echo "   ✅ Default model applied to backend successfully."
+    else
+        echo "   ⚠️ Warning: Configuration file could not be found to inject DEFAULT_MODEL."
+    fi
+fi
 
+if [ -n "$TELEGRAM_CHAT_ID" ]; then
+    echo "=> Auto-pairing Telegram Chat ID..."
+    mkdir -p ./data/credentials
+    # OpenClaw allowlists are typically JSON arrays storing the allowed chat IDs
+    echo "[\"$TELEGRAM_CHAT_ID\"]" > ./data/credentials/telegram-allowFrom.json
+    echo "   ✅ Telegram Chat ID $TELEGRAM_CHAT_ID paired automatically."
+fi
 
 echo ""
 echo "=> Starting OpenClaw Gateway in detached mode..."
