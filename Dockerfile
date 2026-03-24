@@ -19,6 +19,9 @@ RUN apt-get update && \
     apt-get update && apt-get install -y gh && \
     rm -rf /var/lib/apt/lists/*
 
+# Install Scrapling and required python libraries
+RUN pip3 install --break-system-packages scrapling lxml || true
+
 # Fix npm update warning by always forcing the latest version globally
 RUN npm install -g npm@latest
 
