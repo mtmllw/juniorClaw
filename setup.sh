@@ -87,9 +87,15 @@ fi
 if [ -n "$TELEGRAM_CHAT_ID" ]; then
     echo "=> Auto-pairing Telegram Chat ID..."
     mkdir -p ./data/credentials
-    # OpenClaw allowlists are typically JSON arrays storing the allowed chat IDs
-    echo "[\"$TELEGRAM_CHAT_ID\"]" > ./data/credentials/telegram-allowFrom.json
+    # OpenClaw allowlists natively check for numeric Telegram Chat IDs in the array
+    echo "[$TELEGRAM_CHAT_ID]" > ./data/credentials/telegram-allowFrom.json
     echo "   ✅ Telegram Chat ID $TELEGRAM_CHAT_ID paired automatically."
+fi
+
+# CRITICAL FIX: Ensure any config files or directories created by root in this script are accessible by the container user (node)
+if [ "$(stat -c %u ./data)" -ne 1000 ] || [ "$(stat -c %u ./workspace)" -ne 1000 ]; then
+  echo "=> Securing data permissions back to the container agent (UID 1000)..."
+  sudo chown -R 1000:1000 ./data ./workspace
 fi
 
 echo ""
