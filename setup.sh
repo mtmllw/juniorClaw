@@ -77,7 +77,7 @@ fi
 
 if [ -n "$TELEGRAM_CHAT_ID" ]; then
     echo "=> Auto-pairing Telegram Chat ID..."
-    docker compose run --rm openclaw-cli npx openclaw config set channels.telegram.allowFrom '["'$TELEGRAM_CHAT_ID'"]' --strict-json
+    docker compose run --rm openclaw-cli /bin/sh -c "npx openclaw config set channels.telegram.allowFrom '[\"$TELEGRAM_CHAT_ID\"]' --strict-json && npx openclaw config set channels.telegram.dmPolicy 'pairing'"
     echo "   ✅ Telegram Chat ID $TELEGRAM_CHAT_ID paired automatically."
 fi
 
