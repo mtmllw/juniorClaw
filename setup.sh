@@ -72,23 +72,12 @@ docker compose run --rm openclaw-cli npx openclaw onboard --non-interactive --ac
 # Workaround: Forcing custom .env features into the newly created config using jq
 if [ -n "$DEFAULT_MODEL" ]; then
     echo "=> Injecting custom DEFAULT_MODEL ($DEFAULT_MODEL) directly into backend configuration..."
-    CONFIG_FILE="./data/openclaw.json"
-    [ -f "./data/config.json" ] && CONFIG_FILE="./data/config.json"
-    
-    if [ -f "$CONFIG_FILE" ]; then
-        # Use a temporary file to safely write and replace the config
-        jq ".agents.defaults.model.primary = \"$DEFAULT_MODEL\"" "$CONFIG_FILE" > "$CONFIG_FILE.tmp" && mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
-        echo "   ✅ Default model applied to backend successfully."
-    else
-        echo "   ⚠️ Warning: Configuration file could not be found to inject DEFAULT_MODEL."
-    fi
+    docker compose run --rm openclaw-cli npx openclaw config set agents.defaults.model.primary "$DEFAULT_MODEL"
 fi
 
 if [ -n "$TELEGRAM_CHAT_ID" ]; then
     echo "=> Auto-pairing Telegram Chat ID..."
-    mkdir -p ./data/credentials
-    # OpenClaw allowlists natively check for numeric Telegram Chat IDs in the array
-    echo "[$TELEGRAM_CHAT_ID]" > ./data/credentials/telegram-allowFrom.json
+    docker compose run --rm openclaw-cli npx openclaw config set channels.telegram.allowFrom '["'$TELEGRAM_CHAT_ID'"]' --strict-json
     echo "   ✅ Telegram Chat ID $TELEGRAM_CHAT_ID paired automatically."
 fi
 
