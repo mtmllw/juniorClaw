@@ -70,15 +70,13 @@ echo "=> Running OpenClaw Headless Onboarding..."
 docker compose run --rm openclaw-cli npx openclaw onboard --non-interactive --accept-risk --skip-health
 
 # Workaround: Forcing custom .env features into the newly created config using jq
-if [ -n "$DEFAULT_MODEL" ]; then
-    echo "=> Injecting custom DEFAULT_MODEL ($DEFAULT_MODEL) directly into backend configuration..."
-    docker compose run --rm openclaw-cli npx openclaw config set agents.defaults.model.primary "$DEFAULT_MODEL"
-fi
-
-if [ -n "$TELEGRAM_CHAT_ID" ]; then
-    echo "=> Auto-pairing Telegram Chat ID..."
-    docker compose run --rm openclaw-cli /bin/sh -c "npx openclaw config set channels.telegram.allowFrom '[\"$TELEGRAM_CHAT_ID\"]' --strict-json && npx openclaw config set channels.telegram.dmPolicy 'pairing'"
-    echo "   ✅ Telegram Chat ID $TELEGRAM_CHAT_ID paired automatically."
+if [ -n "$TELEGRAM_CHAT_ID" && -n "$DEFAULT_MODEL" ]; then
+    echo "=> Injecting custom DEFAULT_MODEL ($DEFAULT_MODEL) and Telegram Chat ID ($TELEGRAM_CHAT_ID) directly into backend configuration..."
+    docker compose run --rm openclaw-cli /bin/sh -c " \
+    npx openclaw config set agents.defaults.model.primary "$DEFAULT_MODEL" && \
+    npx openclaw config set channels.telegram.dmPolicy 'pairing' && \
+    npx openclaw config set channels.telegram.allowFrom '[\"$TELEGRAM_CHAT_ID\"]' --strict-json"
+    echo "   ✅ DEFAULT_MODEL ($DEFAULT_MODEL) and Telegram Chat ID ($TELEGRAM_CHAT_ID) set successfully."
 fi
 
 # CRITICAL FIX: Ensure any config files or directories created by root in this script are accessible by the container user (node)
