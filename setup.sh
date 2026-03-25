@@ -63,7 +63,7 @@ if [ "$(stat -c %u ./data)" -ne 1000 ] || [ "$(stat -c %u ./workspace)" -ne 1000
 fi
 
 echo "=> Building OpenClaw image to ensure local dependencies (like NPM) are up to date..."
-docker compose build --no-cache
+docker compose build
 
 echo "=> Running OpenClaw Headless Onboarding..."
 
