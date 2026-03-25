@@ -70,7 +70,7 @@ echo "=> Running OpenClaw Headless Onboarding..."
 docker compose run --rm openclaw-cli npx openclaw onboard --non-interactive --accept-risk --skip-health
 
 # Workaround: Forcing custom .env features into the newly created config using jq
-if [ -n "$TELEGRAM_CHAT_ID" && -n "$DEFAULT_MODEL" ]; then
+if [ -n "$TELEGRAM_CHAT_ID" ] && [ -n "$DEFAULT_MODEL" ]; then
     echo "=> Injecting custom DEFAULT_MODEL ($DEFAULT_MODEL) and Telegram Chat ID ($TELEGRAM_CHAT_ID) directly into backend configuration..."
     docker compose run --rm openclaw-cli /bin/sh -c " \
     npx openclaw config set agents.defaults.model.primary "$DEFAULT_MODEL" && \
