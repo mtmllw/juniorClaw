@@ -12,6 +12,8 @@ services:
     volumes:
       - ./data:/home/node/.openclaw
       - ./workspace:/home/node/.openclaw/workspace
+      - ./data:/root/.openclaw
+      - ./workspace:/root/.openclaw/workspace
       # Enable if using local docker socket for agent sandboxing
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:
