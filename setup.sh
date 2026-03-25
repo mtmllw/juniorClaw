@@ -67,21 +67,27 @@ docker compose build
 
 echo "=> Running OpenClaw Headless Onboarding..."
 
-AGENT_CMD="npx openclaw onboard --non-interactive --accept-risk --skip-health"
+AGENT_CMD="npx openclaw onboard --non-interactive --accept-risk --skip-health && \
+npx openclaw config set tools.elevated.enabled true"
 
-if [ -n "$TELEGRAM_CHAT_ID" ] && [ -n "$DEFAULT_MODEL" ]; then
-    echo "=> Injecting custom DEFAULT_MODEL ($DEFAULT_MODEL) and Telegram Chat ID ($TELEGRAM_CHAT_ID)..."
-    
-    AGENT_CMD="$AGENT_CMD && \
-    npx openclaw config set agents.defaults.model.primary \"$DEFAULT_MODEL\" && \
-    npx openclaw config set channels.telegram.dmPolicy 'pairing' && \
-    npx openclaw config set channels.telegram.allowFrom '[\"$TELEGRAM_CHAT_ID\"]' --strict-json"
+if [ -n "$DEFAULT_MODEL" ]; then
+    echo "=> Injecting custom DEFAULT_MODEL ($DEFAULT_MODEL)..."
+    AGENT_CMD="$AGENT_CMD && npx openclaw config set agents.defaults.model.primary \"$DEFAULT_MODEL\""
 fi
 
+if [ -n "$TELEGRAM_CHAT_ID" ]; then
+    echo "=> Injecting Telegram Chat ID ($TELEGRAM_CHAT_ID) and authorizing elevated permissions for Telegram..."
+    AGENT_CMD="$AGENT_CMD && \
+    npx openclaw config set channels.telegram.dmPolicy 'pairing' && \
+    npx openclaw config set channels.telegram.allowFrom '[\"$TELEGRAM_CHAT_ID\"]' --strict-json && \
+    npx openclaw config set tools.elevated.allowFrom '[\"telegram\"]' --strict-json"
+fi
+
+echo "=> Executing configuration sequence..."
 docker compose run --rm openclaw-cli /bin/sh -c "$AGENT_CMD"
 
 if [ $? -eq 0 ]; then
-    echo "   ✅ Setup and configuration completed successfully in one run."
+    echo "   ✅ Setup and configuration completed successfully."
 else
     echo "   ❌ An error occurred during the setup process."
 fi
