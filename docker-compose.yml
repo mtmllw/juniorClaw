@@ -38,8 +38,10 @@ services:
     group_add:
       - "${DOCKER_GID:-982}" # Host docker group ID
     volumes:
-      - ./data:/home/node/.openclaw
-      - ./workspace:/home/node/.openclaw/workspace
+      #- ./data:/home/node/.openclaw
+      #- ./workspace:/home/node/.openclaw/workspace
+      - ./data:/root/.openclaw
+      - ./workspace:/root/.openclaw/workspace
       - /var/run/docker.sock:/var/run/docker.sock # Added for Docker-in-Docker control
     env_file:
       - .env
