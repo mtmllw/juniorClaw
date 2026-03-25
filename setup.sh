@@ -63,20 +63,27 @@ if [ "$(stat -c %u ./data)" -ne 1000 ] || [ "$(stat -c %u ./workspace)" -ne 1000
 fi
 
 echo "=> Building OpenClaw image to ensure local dependencies (like NPM) are up to date..."
-docker compose build
+docker compose build --no-cache
 
 echo "=> Running OpenClaw Headless Onboarding..."
-# The non-interactive flag ensures it reads from .env and generates config.json without prompting
-docker compose run --rm openclaw-cli npx openclaw onboard --non-interactive --accept-risk --skip-health
 
-# Workaround: Forcing custom .env features into the newly created config using jq
+AGENT_CMD="npx openclaw onboard --non-interactive --accept-risk --skip-health"
+
 if [ -n "$TELEGRAM_CHAT_ID" ] && [ -n "$DEFAULT_MODEL" ]; then
-    echo "=> Injecting custom DEFAULT_MODEL ($DEFAULT_MODEL) and Telegram Chat ID ($TELEGRAM_CHAT_ID) directly into backend configuration..."
-    docker compose run --rm openclaw-cli /bin/sh -c " \
-    npx openclaw config set agents.defaults.model.primary "$DEFAULT_MODEL" && \
+    echo "=> Injecting custom DEFAULT_MODEL ($DEFAULT_MODEL) and Telegram Chat ID ($TELEGRAM_CHAT_ID)..."
+    
+    AGENT_CMD="$AGENT_CMD && \
+    npx openclaw config set agents.defaults.model.primary \"$DEFAULT_MODEL\" && \
     npx openclaw config set channels.telegram.dmPolicy 'pairing' && \
     npx openclaw config set channels.telegram.allowFrom '[\"$TELEGRAM_CHAT_ID\"]' --strict-json"
-    echo "   ✅ DEFAULT_MODEL ($DEFAULT_MODEL) and Telegram Chat ID ($TELEGRAM_CHAT_ID) set successfully."
+fi
+
+docker compose run --rm openclaw-cli /bin/sh -c "$AGENT_CMD"
+
+if [ $? -eq 0 ]; then
+    echo "   ✅ Setup and configuration completed successfully in one run."
+else
+    echo "   ❌ An error occurred during the setup process."
 fi
 
 # CRITICAL FIX: Ensure any config files or directories created by root in this script are accessible by the container user (node)
