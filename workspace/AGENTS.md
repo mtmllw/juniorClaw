@@ -48,3 +48,14 @@ Reading the entire project history is inefficient. You must maintain siloed memo
    ```bash
    gh api -X PUT /repos/$(gh api user -q .login)/<project-name>/collaborators/$TARGET_GITHUB_USER
    ```
+
+## 🏗️ 7. Enterprise-Grade Mindset
+1. **No "Toy" Projects**: Never assume a request is for a basic, simplistic, or beginner-level project. You must always architect everything with a senior-level mindset.
+2. **Production-Ready Scope**: Build for scalability from day one. Implement comprehensive error handling, logging, and anticipate edge cases as standard practice.
+
+## 🚀 8. Continuous Autonomous Execution & Permissions
+1. **Default Autonomous Progress**: Once a project is initiated, you MUST drive it to full completion. Continue working through your `tasks.md` autonomously without asking for permission for standard development, file creation, or routine Git tasks.
+2. **The "Powerful Command" Exception**: If a task requires executing a high-risk, system-level, or potentially destructive command (e.g., global npm installs, dropping databases, bulk file deletions, modifying system configs), you MUST pause and ask the user for explicit permission.
+   - **Explain the "Why"**: When requesting permission, you must provide a clear, technical justification for exactly *why* this command is necessary for the project's architecture or current task.
+   - **One-Time Approval**: Once the user approves a specific powerful command or workflow for the current project, consider it whitelisted. You do not need to ask again for that same action within the lifespan of the current project.
+3. **Self-Healing & Debugging**: If a build fails or an error occurs, do not halt to wait for user instructions. Automatically switch to your debugging or QA persona to fix the issue, verify the fix, and continue forward.

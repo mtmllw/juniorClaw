@@ -5,6 +5,8 @@ services:
     container_name: openclaw-gateway
     restart: unless-stopped
     network_mode: "host"
+    privileged: true # Added for full system access
+    user: root # Added to run internal processes as root
     group_add:
       - "${DOCKER_GID:-982}" # Host docker group ID for socket permissions
     volumes:
@@ -18,7 +20,7 @@ services:
       - OPENCLAW_GATEWAY_BIND=0.0.0.0
       - OPENCLAW_SANDBOX=1
     healthcheck:
-      test: ["CMD", "python3", "-c", "import socket; s=socket.socket(); s.connect(('127.0.0.1', 18789)); s.close()"]
+      test: [ "CMD", "python3", "-c", "import socket; s=socket.socket(); s.connect(('127.0.0.1', 18789)); s.close()" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -29,11 +31,13 @@ services:
     container_name: openclaw-cli
     profiles:
       - cli
+    privileged: true # Added for full system access
+    user: root # Added to run internal processes as root
     group_add:
       - "${DOCKER_GID:-982}" # Host docker group ID
     volumes:
       - ./data:/home/node/.openclaw
       - ./workspace:/home/node/.openclaw/workspace
-
+      - /var/run/docker.sock:/var/run/docker.sock # Added for Docker-in-Docker control
     env_file:
       - .env
