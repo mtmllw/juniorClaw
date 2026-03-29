@@ -45,6 +45,64 @@ if [ -z "$OPENAI_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ] && [ -z "$GEMINI_API_
   exit 1
 fi
 
+echo "=> Detecting available models based on your API keys..."
+# Run the python script to fetch models actively from the internet/APIs
+MODELS_FETCHED=$(python3 ./workspace/scripts/fetch_models.py 2>/dev/null)
+AVAILABLE_MODELS=()
+while IFS= read -r line; do
+  if [ -n "$line" ]; then
+    AVAILABLE_MODELS+=("$line")
+  fi
+done <<< "$MODELS_FETCHED"
+
+if [ ${#AVAILABLE_MODELS[@]} -eq 0 ]; then
+  # Fallback if internet fetch fails
+  AVAILABLE_MODELS=("gpt-4o" "claude-3-5-sonnet-20241022" "gemini-2.5-pro")
+fi
+  echo "Please select the models you want the Orchestrator to use (space-separated numbers, e.g., '1 2'):"
+  for i in "${!AVAILABLE_MODELS[@]}"; do
+    echo "$((i+1)). ${AVAILABLE_MODELS[$i]}"
+  done
+
+  read -p "Selection: " selections
+  SELECTED_MODELS=()
+  for sel in $selections; do
+    # Only process numbers to prevent errors
+    if [[ "$sel" =~ ^[0-9]+$ ]]; then
+      idx=$((sel-1))
+      if [ -n "${AVAILABLE_MODELS[$idx]}" ]; then
+        SELECTED_MODELS+=("${AVAILABLE_MODELS[$idx]}")
+      fi
+    fi
+  done
+
+  if [ ${#SELECTED_MODELS[@]} -eq 0 ]; then
+    echo "❌ Error: You must select at least one valid model."
+    exit 1
+  fi
+
+  PRIMARY_MODEL="${SELECTED_MODELS[0]}"
+  if [ ${#SELECTED_MODELS[@]} -gt 1 ]; then
+    echo "Multiple models selected. Which one should be the DEFAULT primary model?"
+    for i in "${!SELECTED_MODELS[@]}"; do
+      echo "$((i+1)). ${SELECTED_MODELS[$i]}"
+    done
+    read -p "Select primary (number): " primary_sel
+    if [[ "$primary_sel" =~ ^[0-9]+$ ]]; then
+      idx=$((primary_sel-1))
+      if [ -n "${SELECTED_MODELS[$idx]}" ]; then
+        PRIMARY_MODEL="${SELECTED_MODELS[$idx]}"
+      fi
+    fi
+  fi
+
+  sed -i '/^SELECTED_MODELS=/d' .env
+  sed -i '/^DEFAULT_MODEL=/d' .env
+  echo "SELECTED_MODELS=\"${SELECTED_MODELS[*]}\"" >> .env
+  echo "DEFAULT_MODEL=\"$PRIMARY_MODEL\"" >> .env
+  DEFAULT_MODEL="$PRIMARY_MODEL"
+  echo "=> Set primary model to $PRIMARY_MODEL."
+
 # Validate GitHub Variables
 if { [ -z "$GITHUB_TOKEN" ] && [ -z "$GH_APP_ID" ]; } || [ -z "$TARGET_GITHUB_USER" ]; then
   echo "❌ Error: GitHub configuration is incomplete!"
@@ -56,6 +114,20 @@ echo "✅ Configuration validated successfully!"
 
 echo "=> Preparing local data and workspace directories..."
 mkdir -p ./data ./workspace
+
+echo "=> Searching for GitHub App .pem key..."
+shopt -s nullglob
+PEM_FILES=(*.pem)
+shopt -u nullglob
+
+if [ ${#PEM_FILES[@]} -eq 1 ]; then
+  echo "   Found ${PEM_FILES[0]}. Copying to data directory for internal use..."
+  cp "${PEM_FILES[0]}" ./data/github-app.pem
+elif [ ${#PEM_FILES[@]} -gt 1 ]; then
+  echo "   ⚠️ Multiple .pem files found. Please manually copy the correct one to ./data/github-app.pem"
+else
+  echo "   No .pem files found in the current directory. Assuming PAT auth or manual setup."
+fi
 # Container runs as UID 1000 (node). Ensure it has permissions if we aren't UID 1000.
 if [ "$(stat -c %u ./data)" -ne 1000 ] || [ "$(stat -c %u ./workspace)" -ne 1000 ]; then
   echo "=> Adjusting permissions for ./data and ./workspace to UID 1000 (requires sudo)..."

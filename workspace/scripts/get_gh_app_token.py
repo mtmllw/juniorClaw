@@ -12,7 +12,7 @@ def main():
         return
 
     installation_id = os.environ.get("GH_APP_INSTALLATION_ID")
-    pem_path = os.environ.get("GH_APP_PRIVATE_KEY_PATH", "/home/node/.openclaw/github-app.pem")
+    pem_path = os.environ.get("GH_APP_PRIVATE_KEY_PATH", "/root/.openclaw/github-app.pem")
 
     if not installation_id or not pem_path:
         print("Error: GH_APP_INSTALLATION_ID and GH_APP_PRIVATE_KEY_PATH must be set.", file=sys.stderr)
