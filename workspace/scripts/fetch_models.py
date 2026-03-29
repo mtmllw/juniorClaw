@@ -29,8 +29,12 @@ def fetch_gemini(api_key):
     try:
         r = requests.get(f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}", timeout=5)
         if r.status_code == 200:
-            models = sorted([m["name"].replace("models/", "") for m in r.json().get("models", []) if "gemini" in m["name"] and "vision" not in m["name"]], reverse=True)
-            return [f"google/{m}" for m in models][:10]
+            valid_models = []
+            for m in r.json().get("models", []):
+                name = m["name"].replace("models/", "")
+                if "gemini" in name and "vision" not in name and "embedding" not in name and "latest" not in name and "robotics" not in name and "customtools" not in name and "live" not in name:
+                    valid_models.append(name)
+            return [f"google/{m}" for m in sorted(list(set(valid_models)), reverse=True)][:10]
     except Exception as e:
         pass
     return ["google/gemini-3.1-pro-preview", "google/gemini-3.1-flash-preview", "google/gemini-2.5-pro", "google/gemini-2.5-flash", "google/gemini-1.5-pro"]
