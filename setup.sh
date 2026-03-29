@@ -176,6 +176,28 @@ echo "=> Starting OpenClaw Gateway in detached mode..."
 docker compose up -d openclaw-gateway
 
 echo ""
+echo "=> Waiting for OpenClaw Gateway to become healthy This may take up to a minute..."
+while true; do
+  STATUS=$(docker inspect --format='{{.State.Health.Status}}' openclaw-gateway 2>/dev/null || echo "unknown")
+  if [ "$STATUS" = "healthy" ]; then
+    break
+  elif [ "$STATUS" = "unhealthy" ]; then
+    echo "❌ Gateway failed healthcheck! Logs may contain more info."
+    break
+  elif [ "$STATUS" = "unknown" ]; then
+    RUN_STATE=$(docker inspect --format='{{.State.Status}}' openclaw-gateway 2>/dev/null)
+    if [ "$RUN_STATE" = "running" ]; then
+      sleep 10
+      break
+    else
+      echo "❌ Gateway container is not running!"
+      break
+    fi
+  fi
+  sleep 10
+done
+
+echo ""
 echo "=========================================================="
 echo "                 ✨ Setup Complete! ✨                    "
 echo "=========================================================="
