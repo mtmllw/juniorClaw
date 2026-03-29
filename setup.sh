@@ -141,8 +141,7 @@ echo "=> Running OpenClaw Headless Onboarding..."
 
 AGENT_CMD="npx openclaw onboard --non-interactive --accept-risk --skip-health && \
 npx openclaw config set tools.elevated.enabled true && \
-npx openclaw config set tools.exec.security \"full\" && \
-npx openclaw config set agents.defaults.memory.maxHistory 20"
+npx openclaw config set tools.exec.security \"full\""
 
 if [ -n "$DEFAULT_MODEL" ]; then
     echo "=> Injecting custom DEFAULT_MODEL ($DEFAULT_MODEL)..."
