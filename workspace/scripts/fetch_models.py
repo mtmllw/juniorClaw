@@ -33,7 +33,7 @@ def fetch_gemini(api_key):
             return [f"gemini/{m}" for m in models][:10]
     except Exception as e:
         pass
-    return ["gemini/gemini-3.1-pro", "gemini/gemini-3.1-flash", "gemini/gemini-2.5-pro", "gemini/gemini-2.5-flash", "gemini/gemini-1.5-pro"]
+    return ["gemini/gemini-1.5-pro-latest", "gemini/gemini-1.5-flash-latest", "gemini/gemini-pro"]
 
 def fetch_groq(api_key):
     try:
