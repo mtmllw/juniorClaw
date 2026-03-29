@@ -9,10 +9,10 @@ def fetch_openai(api_key):
         r = requests.get("https://api.openai.com/v1/models", headers=headers, timeout=5)
         if r.status_code == 200:
             models = sorted([m["id"] for m in r.json().get("data", []) if "gpt" in m["id"] or "o1" in m["id"] or "o3" in m["id"]], reverse=True)
-            return [m for m in models if "vision" not in m and "instruct" not in m and "audio" not in m and "realtime" not in m][:15]
+            return [f"openai/{m}" for m in models if "vision" not in m and "instruct" not in m and "audio" not in m and "realtime" not in m][:15]
     except Exception as e:
         pass
-    return ["gpt-4o", "gpt-4o-mini"]
+    return ["openai/gpt-4o", "openai/gpt-4o-mini"]
 
 def fetch_anthropic(api_key):
     try:
@@ -20,30 +20,30 @@ def fetch_anthropic(api_key):
         r = requests.get("https://api.anthropic.com/v1/models", headers=headers, timeout=5)
         if r.status_code == 200:
             models = sorted([m["id"] for m in r.json().get("data", []) if "claude" in m["id"]], reverse=True)
-            return models[:10]
+            return [f"anthropic/{m}" for m in models][:10]
     except Exception as e:
         pass
-    return ["claude-3-7-sonnet-20250219", "claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022"]
+    return ["anthropic/claude-3-7-sonnet-20250219", "anthropic/claude-3-5-sonnet-20241022", "anthropic/claude-3-5-haiku-20241022"]
 
 def fetch_gemini(api_key):
     try:
         r = requests.get(f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}", timeout=5)
         if r.status_code == 200:
             models = sorted([m["name"].replace("models/", "") for m in r.json().get("models", []) if "gemini" in m["name"] and "vision" not in m["name"]], reverse=True)
-            return models[:10]
+            return [f"gemini/{m}" for m in models][:10]
     except Exception as e:
         pass
-    return ["gemini-3.1-pro", "gemini-3.1-flash", "gemini-2.5-pro", "gemini-2.5-flash", "gemini-1.5-pro"]
+    return ["gemini/gemini-3.1-pro", "gemini/gemini-3.1-flash", "gemini/gemini-2.5-pro", "gemini/gemini-2.5-flash", "gemini/gemini-1.5-pro"]
 
 def fetch_groq(api_key):
     try:
         headers = {"Authorization": f"Bearer {api_key}"}
         r = requests.get("https://api.groq.com/openai/v1/models", headers=headers, timeout=5)
         if r.status_code == 200:
-            return sorted([m["id"] for m in r.json().get("data", [])])[:10]
+            return sorted([f"groq/{m['id']}" for m in r.json().get("data", [])])[:10]
     except Exception as e:
         pass
-    return ["llama3-70b-8192", "mixtral-8x7b-32768"]
+    return ["groq/llama3-70b-8192", "groq/mixtral-8x7b-32768"]
 
 if __name__ == "__main__":
     models = []
