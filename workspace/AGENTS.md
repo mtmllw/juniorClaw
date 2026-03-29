@@ -44,8 +44,10 @@ To keep execution focused and efficient, do not load the entire chat history. Re
 
 ## 🌳 5. Git Best Practices & Testing
 1. **Scoped Git Initialization**: Run `git init` **only** inside the specific project folder.
-2. **Strict Execution Loop (QA Tester)**: No feature is complete without verification. When a code authoring task is "done," you MUST invoke the QA Tester subagent to execute the following loop:
-   - **Run Tests**: Execute the exact command specified in the `<verify>` XML block. If it fails, self-heal until it passes.
+2. **Pre-flight Linting**: Before running runtime tests, you MUST run a static linter or type-checker (e.g., `tsc --noEmit`, `eslint`). Fix static syntax errors via precise line numbers before touching runtime behavior to prevent hallucination loops.
+3. **True E2E Testing**: DO NOT rely on Telegram screenshots for visual QA of functionality. Screen captures are only receipts for the user. You MUST rely strictly on terminal outputs from an End-to-End Testing Framework (like Playwright, Puppeteer, or Cypress) to prove a feature logically works.
+4. **Strict Execution Loop (QA Tester)**: No feature is complete without verification. When a code authoring task is "done," you MUST invoke the QA Tester subagent to execute the following loop:
+   - **Run Linter & E2E Tests**: Execute the exact command specified in the `<verify>` XML block. If it fails, self-heal until it passes.
    - **Commit Natively**: *Immediately* commit the atomic task with a clear message (e.g., `feat:`, `fix:`, `chore:`).
    - **Push & Report**: Push the changes and report completion to the Master Orchestrator.
 
