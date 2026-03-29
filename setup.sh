@@ -176,16 +176,15 @@ echo "=> Starting OpenClaw Gateway in detached mode..."
 docker compose up -d openclaw-gateway
 
 echo ""
-echo -n "=> Waiting for OpenClaw Gateway to become healthy (this usually takes ~2 mins)"
-while true; do
+echo -n "=> Waiting for OpenClaw Gateway to become healthy (timeout: 5 mins)"
+RETRIES=0
+MAX_RETRIES=30
+
+while [ $RETRIES -lt $MAX_RETRIES ]; do
   STATUS=$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' openclaw-gateway 2>/dev/null || echo "starting")
   
   if [ "$STATUS" = "healthy" ]; then
     echo " [OK]"
-    break
-  elif [ "$STATUS" = "unhealthy" ]; then
-    echo ""
-    echo "❌ Gateway failed healthcheck! View logs for details."
     break
   elif [ "$STATUS" = "exited" ] || [ "$STATUS" = "dead" ]; then
     echo ""
@@ -196,7 +195,14 @@ while true; do
   # Print a dot to show we are silently waiting, not frozen
   echo -n "."
   sleep 10
+  RETRIES=$((RETRIES+1))
 done
+
+if [ $RETRIES -eq $MAX_RETRIES ]; then
+  echo ""
+  echo "⚠️ Timeout: Gateway took longer than 5 minutes to report 'healthy'."
+  echo "   It might still be downloading dependencies. Check logs if issues persist."
+fi
 
 echo ""
 echo "=========================================================="
