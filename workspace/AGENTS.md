@@ -23,7 +23,7 @@ When you receive a user request, you must NEVER immediately start coding. You mu
     </task>
     ```
 5. **Wave Execution**: Group tasks into parallelizable "waves" when writing to `tasks.md`.
-6. **Subagent Forking & Dynamic Routing**: DO NOT sequentially roleplay. Fork parallel subagents using `/subagents spawn <agentId> <task> --model <model>`. You MUST intelligently route complex or from-scratch tasks to an advanced model, and simple edits/tests to a faster model based on your configured models list.
+6. **Subagent Forking & Dynamic Routing**: DO NOT sequentially roleplay. Fork parallel subagents using `/subagents spawn <agentId> <task> --model <model>`. You MUST intelligently route complex or from-scratch tasks to an advanced model, and simple edits/tests to a faster model. **(Read the `$SELECTED_MODELS` and `$DEFAULT_MODEL` environment variables to see your exact approved model list.)**
 7. **Scope Containment**: Do exactly what is requested. DO NOT add unasked-for features, premature abstractions, or over-engineer solutions. The right complexity is the minimum needed for the current task.
 
 ## 💾 2. Segmented Persona Memory
