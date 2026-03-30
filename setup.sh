@@ -139,31 +139,43 @@ docker compose build
 
 echo "=> Running OpenClaw Headless Onboarding..."
 
-AGENT_CMD="npx openclaw onboard --non-interactive --accept-risk --skip-health && \
-npx openclaw config set tools.elevated.enabled true && \
-npx openclaw config set tools.exec.security \"full\""
+echo "=> Running OpenClaw Headless Onboarding (Core Configuration)..."
+docker compose run --rm openclaw-cli /bin/sh -c "npx openclaw onboard --non-interactive --accept-risk --skip-health"
 
-if [ -n "$DEFAULT_MODEL" ]; then
-    echo "=> Injecting custom DEFAULT_MODEL ($DEFAULT_MODEL)..."
-    AGENT_CMD="$AGENT_CMD && npx openclaw config set agents.defaults.model.primary \"$DEFAULT_MODEL\""
-fi
+echo "=> Instantly mass-injecting configuration into openclaw.json via Python (bypassing slow Node.js boots)..."
+export DEFAULT_MODEL TELEGRAM_CHAT_ID
+python3 -c "
+import json, os
+try:
+    with open('./data/openclaw.json', 'r') as f:
+        d = json.load(f)
+except Exception:
+    d = {}
 
-if [ -n "$TELEGRAM_CHAT_ID" ]; then
-    echo "=> Injecting Telegram Chat ID ($TELEGRAM_CHAT_ID) and authorizing elevated permissions for Telegram..."
-    AGENT_CMD="$AGENT_CMD && \
-    npx openclaw config set channels.telegram.dmPolicy 'pairing' && \
-    npx openclaw config set channels.telegram.allowFrom '[\"$TELEGRAM_CHAT_ID\"]' --strict-json && \
-    npx openclaw config set tools.elevated.allowFrom.telegram '[\"$TELEGRAM_CHAT_ID\"]' --strict-json && \
-    npx openclaw config set tools.exec.envAllowlist '[\"TELEGRAM_CHAT_ID\",\"TELEGRAM_BOT_TOKEN\"]' --strict-json"
-fi
+def s(d, k, v):
+    for x in k[:-1]: d = d.setdefault(x, {})
+    d[k[-1]] = v
 
-echo "=> Executing configuration sequence..."
-docker compose run --rm openclaw-cli /bin/sh -c "$AGENT_CMD"
+s(d, ['tools', 'elevated', 'enabled'], True)
+s(d, ['tools', 'exec', 'security'], 'full')
+
+m = os.environ.get('DEFAULT_MODEL')
+if m: s(d, ['agents', 'defaults', 'model', 'primary'], m)
+
+t = os.environ.get('TELEGRAM_CHAT_ID')
+if t:
+    s(d, ['channels', 'telegram', 'dmPolicy'], 'pairing')
+    s(d, ['channels', 'telegram', 'allowFrom'], [t])
+    s(d, ['tools', 'elevated', 'allowFrom', 'telegram'], [t])
+
+with open('./data/openclaw.json', 'w') as f:
+    json.dump(d, f, indent=2)
+"
 
 if [ $? -eq 0 ]; then
-    echo "   ✅ Setup and configuration completed successfully."
+    echo "   ✅ Lightning-fast setup and configuration completed successfully!"
 else
-    echo "   ❌ An error occurred during the setup process."
+    echo "   ❌ An error occurred during the fast JSON configuration."
 fi
 
 # CRITICAL FIX: Ensure any config files or directories created by root in this script are accessible by the container user (node)
