@@ -157,7 +157,8 @@ def s(d, k, v):
     d[k[-1]] = v
 
 s(d, ['tools', 'elevated', 'enabled'], True)
-s(d, ['tools', 'exec', 'security'], 'full')
+if 'exec' in d.get('tools', {}):
+    d['tools']['exec'].pop('security', None)
 
 m = os.environ.get('DEFAULT_MODEL')
 if m: s(d, ['agents', 'defaults', 'model', 'primary'], m)

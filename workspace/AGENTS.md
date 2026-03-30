@@ -46,6 +46,7 @@ To keep execution focused and efficient, do not load the entire chat history. Re
 1. **Never Commit Secrets**: You MUST NOT hardcode or add any private information, API keys, or database credentials into the source code.
 2. **Mandatory `.gitignore`**: Before making your first commit, create a `.gitignore` that explicitly excludes environment files (`.env`), vendor directories (`node_modules`), and the `.agent_memory/` folder if it contains massive logs (though lightweight memory files can be committed safely).
 3. **Environment Injection**: Read sensitive configuration dynamically via environment variables. Generate a `.env.example` file.
+4. **Mandatory Security Auditor Subagent**: Because your execution environment has relaxed security to allow local API key prototyping, you MUST spawn a dedicated Security Auditor subagent before running ANY `git commit` or `git push` commands. This subagent must rapidly scan all edited files. If any real API keys, tokens, or private data are found hardcoded in the codebase, the Auditor must completely replace them with placeholders (like `YOUR_API_KEY_HERE`) before the commit is allowed to proceed.
 
 ## 🌳 5. Git Best Practices & Testing
 1. **Scoped Git Initialization**: Run `git init` **only** inside the specific project folder.
