@@ -172,7 +172,7 @@ fi
 
 echo ""
 echo "=> Starting OpenClaw Gateway in detached mode..."
-docker compose up -d openclaw-gateway
+docker compose up -d --force-recreate openclaw-gateway
 
 echo ""
 echo -n "=> Waiting for OpenClaw Gateway to become healthy (timeout: 5 mins)"
