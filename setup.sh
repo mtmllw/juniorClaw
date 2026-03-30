@@ -153,7 +153,8 @@ if [ -n "$TELEGRAM_CHAT_ID" ]; then
     AGENT_CMD="$AGENT_CMD && \
     npx openclaw config set channels.telegram.dmPolicy 'pairing' && \
     npx openclaw config set channels.telegram.allowFrom '[\"$TELEGRAM_CHAT_ID\"]' --strict-json && \
-    npx openclaw config set tools.elevated.allowFrom.telegram '[\"$TELEGRAM_CHAT_ID\"]' --strict-json"
+    npx openclaw config set tools.elevated.allowFrom.telegram '[\"$TELEGRAM_CHAT_ID\"]' --strict-json && \
+    npx openclaw config set tools.exec.envAllowlist '[\"TELEGRAM_CHAT_ID\",\"TELEGRAM_BOT_TOKEN\"]' --strict-json"
 fi
 
 echo "=> Executing configuration sequence..."
