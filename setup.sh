@@ -157,9 +157,6 @@ def s(d, k, v):
     d[k[-1]] = v
 
 s(d, ['tools', 'elevated', 'enabled'], True)
-s(d, ['tools', 'elevated', 'requireApproval'], False)
-s(d, ['tools', 'exec', 'requireApproval'], False)
-s(d, ['tools', 'exec', 'autoApprove'], True)
 s(d, ['tools', 'exec', 'ask'], 'off')
 if 'exec' in d.get('tools', {}):
     d['tools']['exec'].pop('security', None)
