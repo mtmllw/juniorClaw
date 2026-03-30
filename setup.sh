@@ -183,8 +183,8 @@ else
     echo "   ❌ An error occurred during the fast JSON configuration."
 fi
 
-echo "=> Overriding host-side security to permanently disable execution prompts..."
-echo '{"defaults":{"ask":"off"}}' > ./data/exec-approvals.json
+echo "=> Overriding host-side security to permanently disable execution prompts and allow all bash commands..."
+echo '{"version": 1, "defaults":{"security": "full", "ask": "off", "askFallback": "full"}}' > ./data/exec-approvals.json
 
 # CRITICAL FIX: Ensure any config files or directories created by root in this script are accessible by the container user (node)
 if [ "$(stat -c %u ./data)" -ne 1000 ] || [ "$(stat -c %u ./workspace)" -ne 1000 ]; then
