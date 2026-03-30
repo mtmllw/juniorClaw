@@ -139,15 +139,9 @@ docker compose build
 
 echo "=> Running OpenClaw Headless Onboarding..."
 
-echo "=> Running OpenClaw Headless Onboarding (Core Configuration)..."
-docker compose run --rm openclaw-cli /bin/sh -c "npx openclaw onboard --non-interactive --accept-risk --skip-health"
-
 AGENT_CMD="npx openclaw onboard --non-interactive --accept-risk --skip-health && \
 npx openclaw config set tools.elevated.enabled true && \
-npx openclaw config set tools.exec.ask 'off' && \
-npx openclaw approvals allowlist add '/*' && \
-npx openclaw approvals allowlist add '**/*' && \
-npx openclaw approvals allowlist add '*'"
+npx openclaw config set tools.exec.security \"full\""
 
 if [ -n "$DEFAULT_MODEL" ]; then
     echo "=> Injecting custom DEFAULT_MODEL ($DEFAULT_MODEL)..."
@@ -155,27 +149,22 @@ if [ -n "$DEFAULT_MODEL" ]; then
 fi
 
 if [ -n "$TELEGRAM_CHAT_ID" ]; then
-    echo "=> Injecting Telegram Chat ID ($TELEGRAM_CHAT_ID) and authorizing permissions for Telegram..."
+    echo "=> Injecting Telegram Chat ID ($TELEGRAM_CHAT_ID) and authorizing elevated permissions for Telegram..."
     AGENT_CMD="$AGENT_CMD && \
     npx openclaw config set channels.telegram.dmPolicy 'pairing' && \
     npx openclaw config set channels.telegram.allowFrom '[\"$TELEGRAM_CHAT_ID\"]' --strict-json && \
     npx openclaw config set tools.elevated.allowFrom.telegram '[\"$TELEGRAM_CHAT_ID\"]' --strict-json && \
-    npx openclaw config set channels.telegram.execApprovals.enabled true && \
-    npx openclaw config set channels.telegram.execApprovals.approvers '[\"$TELEGRAM_CHAT_ID\"]' --strict-json && \
-    npx openclaw config set channels.telegram.execApprovals.target 'dm'"
+    npx openclaw config set tools.exec.envAllowlist '[\"TELEGRAM_CHAT_ID\",\"TELEGRAM_BOT_TOKEN\"]' --strict-json"
 fi
 
-echo "=> Executing configuration sequence... (This may take roughly ~15 seconds to boot)"
+echo "=> Executing configuration sequence..."
 docker compose run --rm openclaw-cli /bin/sh -c "$AGENT_CMD"
 
 if [ $? -eq 0 ]; then
-    echo "   ✅ Native NPX setup and configuration completed successfully."
+    echo "   ✅ Setup and configuration completed successfully."
 else
     echo "   ❌ An error occurred during the setup process."
 fi
-
-echo "=> Overriding host-side security to permanently disable execution prompts and allow all bash commands..."
-echo '{"version": 1, "defaults":{"security": "full", "ask": "off", "askFallback": "full"}}' > ./data/exec-approvals.json
 
 # CRITICAL FIX: Ensure any config files or directories created by root in this script are accessible by the container user (node)
 if [ "$(stat -c %u ./data)" -ne 1000 ] || [ "$(stat -c %u ./workspace)" -ne 1000 ]; then
@@ -185,7 +174,7 @@ fi
 
 echo ""
 echo "=> Starting OpenClaw Gateway in detached mode..."
-docker compose up -d --force-recreate openclaw-gateway
+docker compose up -d openclaw-gateway
 
 echo ""
 echo -n "=> Waiting for OpenClaw Gateway to become healthy (timeout: 5 mins)"
