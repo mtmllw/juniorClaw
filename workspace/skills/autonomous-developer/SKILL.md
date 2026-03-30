@@ -42,10 +42,8 @@ Before ending your task, you **MUST** provide visual and technical proof to the 
    - Start your app inside `xvfb-run` in the background (e.g. `xvfb-run -a -s "-screen 0 1280x720x24" python3 app.py &`).
    - Wait 3 seconds for the UI to render.
    - Capture the X11 Display buffer: `DISPLAY=:99 import -window root proof.png`
-   - Because OpenClaw strictly limits Telegram binary payloads natively, you MUST upload the screenshot to an anonymous public host using `curl` to generate a shareable URL:
+   - Upload the screenshot directly to the user via Telegram API using your natively inherited sandbox environment variables:
      ```bash
-     URL=$(curl -s -F "reqtype=fileupload" -F "fileToUpload=@proof.png" https://catbox.moe/user/api.php)
-     echo "Screenshot uploaded to: $URL"
+     curl -F photo=@proof.png -F chat_id=$TELEGRAM_CHAT_ID https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendPhoto
      ```
-   - Print that resulting URL text to the user in your final chat reply so Telegram can instantly generate a visual preview!
    - Kill the background app process when finished.
