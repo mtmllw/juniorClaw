@@ -186,6 +186,9 @@ else
     echo "   ❌ An error occurred during the fast JSON configuration."
 fi
 
+echo "=> Overriding host-side security to permanently disable execution prompts..."
+echo '{"defaults":{"ask":"off"}}' > ./data/exec-approvals.json
+
 # CRITICAL FIX: Ensure any config files or directories created by root in this script are accessible by the container user (node)
 if [ "$(stat -c %u ./data)" -ne 1000 ] || [ "$(stat -c %u ./workspace)" -ne 1000 ]; then
   echo "=> Securing data permissions back to the container agent (UID 1000)..."
@@ -194,7 +197,7 @@ fi
 
 echo ""
 echo "=> Starting OpenClaw Gateway in detached mode..."
-docker compose up -d openclaw-gateway
+docker compose up -d --force-recreate openclaw-gateway
 
 echo ""
 echo -n "=> Waiting for OpenClaw Gateway to become healthy (timeout: 5 mins)"
