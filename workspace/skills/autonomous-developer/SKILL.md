@@ -43,5 +43,5 @@ Before ending your task, you **MUST** provide visual and technical proof to the 
    - Wait 3 seconds for the UI to render.
    - Capture the X11 Display buffer: `DISPLAY=:99 import -window root proof.png`
    - Upload the screenshot directly to the user by explicitly utilizing your built-in `message` tool. DO NOT try to use raw `curl` or markdown `![img]()` links to send images. 
-     *Example Tool Call:* Action: `send`, `filePath` (must be the absolute path to `proof.png`), and a helpful `caption`.
+     *Example Tool Call:* Action: `send`, `media` (must be the **relative path**, e.g., `proof.png`), and a helpful `caption`.
    - Kill the background app process when finished.
