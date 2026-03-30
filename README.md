@@ -57,3 +57,10 @@ The brains of JuniorClaw exist entirely in your `./workspace/` directory.
 
 - **`AGENTS.md`**: The Iron-Law rulebook forcing the AI to orchestrate personas and push to GitHub.
 - **`skills/autonomous-developer/SKILL.md`**: The technical workflow forcing the agent to snap screenshots with ImageMagick and run tests in headless environments before talking to you.
+
+---
+
+## 🛑 Remote Interruption (Kill Switch)
+If JuniorClaw gets stuck in an infinite debugging loop or starts executing something you want to instantly cancel while you only have your phone:
+- Send exactly `/stop` in the Telegram chat. This acts as a priority slash command, bypassing the network debounce queue to instantly kill the active subagent generation.
+- Send `/reset` to forcibly wipe the open dialog context and start fresh.
