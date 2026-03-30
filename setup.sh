@@ -140,8 +140,7 @@ docker compose build
 echo "=> Running OpenClaw Headless Onboarding..."
 
 AGENT_CMD="npx openclaw onboard --non-interactive --accept-risk --skip-health && \
-npx openclaw config set tools.elevated.enabled true && \
-npx openclaw config set tools.exec.security \"full\""
+npx openclaw config set tools.elevated.enabled true"
 
 if [ -n "$DEFAULT_MODEL" ]; then
     echo "=> Injecting custom DEFAULT_MODEL ($DEFAULT_MODEL)..."
@@ -153,8 +152,7 @@ if [ -n "$TELEGRAM_CHAT_ID" ]; then
     AGENT_CMD="$AGENT_CMD && \
     npx openclaw config set channels.telegram.dmPolicy 'pairing' && \
     npx openclaw config set channels.telegram.allowFrom '[\"$TELEGRAM_CHAT_ID\"]' --strict-json && \
-    npx openclaw config set tools.elevated.allowFrom.telegram '[\"$TELEGRAM_CHAT_ID\"]' --strict-json && \
-    npx openclaw config set tools.exec.envAllowlist '[\"TELEGRAM_CHAT_ID\",\"TELEGRAM_BOT_TOKEN\"]' --strict-json"
+    npx openclaw config set tools.elevated.allowFrom.telegram '[\"$TELEGRAM_CHAT_ID\"]' --strict-json"
 fi
 
 echo "=> Executing configuration sequence..."
