@@ -168,6 +168,9 @@ if t:
     s(d, ['channels', 'telegram', 'dmPolicy'], 'pairing')
     s(d, ['channels', 'telegram', 'allowFrom'], [t])
     s(d, ['tools', 'elevated', 'allowFrom', 'telegram'], [t])
+    s(d, ['channels', 'telegram', 'execApprovals', 'enabled'], True)
+    s(d, ['channels', 'telegram', 'execApprovals', 'approvers'], [t])
+    s(d, ['channels', 'telegram', 'execApprovals', 'target'], 'dm')
 
 with open('./data/openclaw.json', 'w') as f:
     json.dump(d, f, indent=2)
