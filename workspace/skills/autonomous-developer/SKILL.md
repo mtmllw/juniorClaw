@@ -42,8 +42,6 @@ Before ending your task, you **MUST** provide visual and technical proof to the 
    - Start your app inside `xvfb-run` in the background (e.g. `xvfb-run -a -s "-screen 0 1280x720x24" python3 app.py &`).
    - Wait 3 seconds for the UI to render.
    - Capture the X11 Display buffer: `DISPLAY=:99 import -window root proof.png`
-   - Upload the screenshot directly to the user via Telegram using the injected environment variables:
-     ```bash
-     curl -F photo=@proof.png -F chat_id=$TELEGRAM_CHAT_ID https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendPhoto
-     ```
+   - Upload the screenshot directly to the user by explicitly utilizing your built-in `message` tool. DO NOT try to use raw `curl` or markdown `![img]()` links to send images. 
+     *Example Tool Call:* Action: `send`, `filePath` (must be the absolute path to `proof.png`), and a helpful `caption`.
    - Kill the background app process when finished.
