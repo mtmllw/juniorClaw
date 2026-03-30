@@ -142,36 +142,45 @@ echo "=> Running OpenClaw Headless Onboarding..."
 echo "=> Running OpenClaw Headless Onboarding (Core Configuration)..."
 docker compose run --rm openclaw-cli /bin/sh -c "npx openclaw onboard --non-interactive --accept-risk --skip-health"
 
-AGENT_CMD="npx openclaw onboard --non-interactive --accept-risk --skip-health && \
-npx openclaw config set tools.elevated.enabled true && \
-npx openclaw config set tools.exec.ask 'off' && \
-npx openclaw approvals allowlist add '/*' && \
-npx openclaw approvals allowlist add '**/*' && \
-npx openclaw approvals allowlist add '*'"
+echo "=> Instantly mass-injecting configuration into openclaw.json via Python (bypassing slow Node.js boots)..."
+export DEFAULT_MODEL TELEGRAM_CHAT_ID
+python3 -c "
+import json, os
+try:
+    with open('./data/openclaw.json', 'r') as f:
+        d = json.load(f)
+except Exception:
+    d = {}
 
-if [ -n "$DEFAULT_MODEL" ]; then
-    echo "=> Injecting custom DEFAULT_MODEL ($DEFAULT_MODEL)..."
-    AGENT_CMD="$AGENT_CMD && npx openclaw config set agents.defaults.model.primary \"$DEFAULT_MODEL\""
-fi
+def s(d, k, v):
+    for x in k[:-1]: d = d.setdefault(x, {})
+    d[k[-1]] = v
 
-if [ -n "$TELEGRAM_CHAT_ID" ]; then
-    echo "=> Injecting Telegram Chat ID ($TELEGRAM_CHAT_ID) and authorizing permissions for Telegram..."
-    AGENT_CMD="$AGENT_CMD && \
-    npx openclaw config set channels.telegram.dmPolicy 'pairing' && \
-    npx openclaw config set channels.telegram.allowFrom '[\"$TELEGRAM_CHAT_ID\"]' --strict-json && \
-    npx openclaw config set tools.elevated.allowFrom.telegram '[\"$TELEGRAM_CHAT_ID\"]' --strict-json && \
-    npx openclaw config set channels.telegram.execApprovals.enabled true && \
-    npx openclaw config set channels.telegram.execApprovals.approvers '[\"$TELEGRAM_CHAT_ID\"]' --strict-json && \
-    npx openclaw config set channels.telegram.execApprovals.target 'dm'"
-fi
+s(d, ['tools', 'elevated', 'enabled'], True)
+s(d, ['tools', 'exec', 'ask'], 'off')
+if 'exec' in d.get('tools', {}):
+    d['tools']['exec'].pop('security', None)
 
-echo "=> Executing configuration sequence... (This may take roughly ~15 seconds to boot)"
-docker compose run --rm openclaw-cli /bin/sh -c "$AGENT_CMD"
+m = os.environ.get('DEFAULT_MODEL')
+if m: s(d, ['agents', 'defaults', 'model', 'primary'], m)
+
+t = os.environ.get('TELEGRAM_CHAT_ID')
+if t:
+    s(d, ['channels', 'telegram', 'dmPolicy'], 'pairing')
+    s(d, ['channels', 'telegram', 'allowFrom'], [t])
+    s(d, ['tools', 'elevated', 'allowFrom', 'telegram'], [t])
+    s(d, ['channels', 'telegram', 'execApprovals', 'enabled'], True)
+    s(d, ['channels', 'telegram', 'execApprovals', 'approvers'], [t])
+    s(d, ['channels', 'telegram', 'execApprovals', 'target'], 'dm')
+
+with open('./data/openclaw.json', 'w') as f:
+    json.dump(d, f, indent=2)
+"
 
 if [ $? -eq 0 ]; then
-    echo "   ✅ Native NPX setup and configuration completed successfully."
+    echo "   ✅ Lightning-fast setup and configuration completed successfully!"
 else
-    echo "   ❌ An error occurred during the setup process."
+    echo "   ❌ An error occurred during the fast JSON configuration."
 fi
 
 echo "=> Overriding host-side security to permanently disable execution prompts and allow all bash commands..."
