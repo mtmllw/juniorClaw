@@ -4,8 +4,10 @@ import sys
 import time
 import jwt
 import requests
+from dotenv import load_dotenv
 
 def main():
+    load_dotenv()
     app_id = os.environ.get("GH_APP_ID")
     if not app_id:
         print(os.environ.get("GITHUB_TOKEN", ""))

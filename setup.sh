@@ -164,8 +164,12 @@ else
     echo "   ❌ An error occurred during the setup process."
 fi
 
-# CRITICAL FIX: Ensure any config files or directories created by root in this script are accessible by the container user (node)
-if [ "$(stat -c %u ./data)" -ne 1000 ] || [ "$(stat -c %u ./workspace)" -ne 1000 ]; then
+echo "=> Injecting environment variables into sandbox workspace..."
+cp .env ./workspace/.env
+chmod 600 ./workspace/.env
+
+# CRITICAL FIX: Ensure any config files or directories created by root in this script (and our injected .env) are accessible by the container user (node)
+if [ "$(stat -c %u ./data)" -ne 1000 ] || [ "$(stat -c %u ./workspace)" -ne 1000 ] || [ "$(stat -c %u ./workspace/.env)" -ne 1000 ]; then
   echo "=> Securing data permissions back to the container agent (UID 1000)..."
   sudo chown -R 1000:1000 ./data ./workspace
 fi

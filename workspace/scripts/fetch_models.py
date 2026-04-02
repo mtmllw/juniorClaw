@@ -2,6 +2,7 @@
 import os
 import requests
 import sys
+from dotenv import load_dotenv
 
 def fetch_openai(api_key):
     try:
@@ -50,6 +51,7 @@ def fetch_groq(api_key):
     return ["groq/llama3-70b-8192", "groq/mixtral-8x7b-32768"]
 
 if __name__ == "__main__":
+    load_dotenv()
     models = []
     
     if os.environ.get("OPENAI_API_KEY"):
