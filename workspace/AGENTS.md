@@ -87,8 +87,9 @@ To keep execution focused and efficient, do not load the entire chat history. Re
 4. **Self-Healing & Error Breaking**: If a build fails or an error occurs, automatically switch to a debugging subpersona to fix it. HOWEVER, if you encounter >3 cascading errors or the complexity spirals unexpectedly, you MUST stop execution, formulate a status report, request a break, and ask the user for a pivot decision instead of hallucinating infinite fixes.
 
 ## 📤 9. File Transfer & Binary Handling
-1. **The Binary Reading Trap**: You MUST NEVER use `read`, `read_file`, or view tools on binary files (e.g., images `.png`/`.jpg`, archives `.zip`, or documents `.pdf`, `.docx`). This will output gibberish, crash your tool loop, and corrupt your context window.
-2. **Sending Any File to the User Natively**: Do not use `curl` or external network commands. OpenClaw provides native file handling via its Telegram plugin. To send a photo, document, or file to the user, simply output a standard markdown link in your final response message using a **strictly relative path** within your workspace.
-   - For images: `![Caption text](./your_file.png)`
-   - For documents: `[File Name](./your_file.pdf)`
-   The OpenClaw Gateway will automatically intercept these relative links, read the file securely acting outside your sandbox, and attach the respective file/image to the user's Telegram message. **NEVER use absolute paths**, as the Gateway's zero-trust security policy strictly blocks them.
+1. **The Binary Reading Trap**: You MUST NEVER use `read`, `read_file`, or terminal view tools on binary files (e.g., images `.png`/`.jpg`, archives `.zip`, or documents `.pdf`, `.docx`). This will output gibberish, crash your tool loop, and corrupt your text context window.
+2. **Sending Files to the User Natively**: Do not use `curl` or manual API requests. Rather, to send a photo, code bundle, document, or file to the user, you must use the native CLI command provided by your OpenClaw environment.
+   Execute this command natively in bash:
+   ```bash
+   openclaw message send --media ./your_file.pdf --message "Here is the requested file"
+   ```

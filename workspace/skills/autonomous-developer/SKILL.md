@@ -42,9 +42,9 @@ Before ending your task, you **MUST** provide visual and technical proof to the 
    - Start your app inside `xvfb-run` in the background (e.g. `xvfb-run -a -s "-screen 0 1280x720x24" python3 app.py &`).
    - Wait 3 seconds for the UI to render.
    - Capture the X11 Display buffer: `DISPLAY=:99 import -window root proof.png`
-   - To upload the screenshot to the user, do NOT use `curl` or network commands. OpenClaw handles this natively.
-   - Simply formulate a markdown image using the relative path in your final message to the user:
-     `![UI Screenshot](./proof.png)`
-   - The OpenClaw gateway will automatically detect this and securely attach the image to your Telegram reply.
+   - Upload the screenshot directly to the user via the native CLI tool inside your environment (do NOT use curl):
+     ```bash
+     openclaw message send --media ./proof.png --message "✅ UI Screenshot generated"
+     ```
    - Print a success message confirming the screenshot was uploaded to Telegram.
    - Kill the background app process when finished.
