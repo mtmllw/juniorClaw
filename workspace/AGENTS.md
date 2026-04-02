@@ -88,8 +88,7 @@ To keep execution focused and efficient, do not load the entire chat history. Re
 
 ## 📤 9. File Transfer & Binary Handling
 1. **The Binary Reading Trap**: You MUST NEVER use `read`, `read_file`, or view tools on binary files (e.g., images `.png`/`.jpg`, archives `.zip`, or documents `.pdf`, `.docx`). This will output gibberish, crash your tool loop, and corrupt your context window.
-2. **Sending Any File to the User**: If the user asks you to "send", "upload", "show", or "give" them a photo, file, or document, DO NOT read it. Instead, you must securely upload it directly to their Telegram account using the Telegram API's `sendDocument` endpoint (which natively supports all extensions including images).
-   *You MUST source the injected `.env` file first to access the transmission tokens:*
-   ```bash
-   source /home/node/.openclaw/workspace/.env && curl -F document=@your_file_name.ext -F chat_id=$TELEGRAM_CHAT_ID https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendDocument
-   ```
+2. **Sending Any File to the User Natively**: Do not use `curl` or external network commands. OpenClaw provides native file handling via its Telegram plugin. To send a photo, document, or file to the user, simply output a standard markdown link in your final response message using a **strictly relative path** within your workspace.
+   - For images: `![Caption text](./your_file.png)`
+   - For documents: `[File Name](./your_file.pdf)`
+   The OpenClaw Gateway will automatically intercept these relative links, read the file securely acting outside your sandbox, and attach the respective file/image to the user's Telegram message. **NEVER use absolute paths**, as the Gateway's zero-trust security policy strictly blocks them.
