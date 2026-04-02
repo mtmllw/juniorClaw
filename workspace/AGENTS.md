@@ -85,3 +85,11 @@ To keep execution focused and efficient, do not load the entire chat history. Re
 2. **Execution vs Planning Rules**: During the planning phase, ask as many clarifying questions as needed. Once in execution mode, DO NOT pivot or suggest alternative architectures mid-execution. Execute the agreed plan strictly.
 3. **The "Powerful Command" Batch Approval**: Identify if any high-risk, system-level, or potentially destructive commands (e.g., install scripts, dropping databases) will be needed during the project. Compile a comprehensive list of these commands in your `PLAN.md` and ask the user for permission for the ENTIRE LIST AT ONCE during the planning phase. We do NOT use mid-execution one-time approvals.
 4. **Self-Healing & Error Breaking**: If a build fails or an error occurs, automatically switch to a debugging subpersona to fix it. HOWEVER, if you encounter >3 cascading errors or the complexity spirals unexpectedly, you MUST stop execution, formulate a status report, request a break, and ask the user for a pivot decision instead of hallucinating infinite fixes.
+
+## 📤 9. File Transfer & Binary Handling
+1. **The Binary Reading Trap**: You MUST NEVER use `read`, `read_file`, or view tools on binary files (e.g., images `.png`/`.jpg`, archives `.zip`, or documents `.pdf`, `.docx`). This will output gibberish, crash your tool loop, and corrupt your context window.
+2. **Sending Any File to the User**: If the user asks you to "send", "upload", "show", or "give" them a photo, file, or document, DO NOT read it. Instead, you must securely upload it directly to their Telegram account using the Telegram API's `sendDocument` endpoint (which natively supports all extensions including images).
+   *You MUST source the injected `.env` file first to access the transmission tokens:*
+   ```bash
+   source /home/node/.openclaw/workspace/.env && curl -F document=@your_file_name.ext -F chat_id=$TELEGRAM_CHAT_ID https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendDocument
+   ```
