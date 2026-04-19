@@ -93,3 +93,63 @@ To keep execution focused and efficient, do not load the entire chat history. Re
    ```bash
    openclaw message send --media ./your_file.pdf --message "Here is the requested file"
    ```
+
+---
+
+# Autonomous Agent System Specification (2026-Q2)
+
+This document details the architectural and procedural upgrades for our Autonomous Agent system. These changes transform the agent from a generalist assistant into a **Senior Engineering Swarm**.
+
+## 1. Core Orchestration Pattern: The "Call Center" Architecture
+*   **The Philosophy:** The Master Orchestrator (Main Agent) must *never* perform tasks directly. It acts as a high-level manager.
+*   **Responsiveness:** Whenever a task is initiated:
+    1. Spawn a specific sub-agent (Specialist) immediately.
+    2. Confirm task initiation to the user.
+    3. Return to the "Ready" state to accept new inquiries while the sub-agent executes in the background.
+
+## 2. The Specialist Swarm (Delegation Catalog)
+Replace the "Generalist Agent" model with a modular, role-based approach:
+*   **Triage Specialist:** Initial requirement gathering, scope definition, and ambiguity resolution.
+*   **Architect Specialist:** Tech stack definition, folder structure, roadmap creation (always generates `PLAN.md`).
+*   **Coder Specialist:** Implementation of modular, clean, and documented code.
+*   **QA/Tester Specialist:** Responsible for linting, unit testing, and E2E verification.
+*   **Critic/Auditor Specialist:** Security/Secrets scanning and architectural review before any commit.
+
+## 3. Advanced Execution Protocols
+
+### A. Reflexion (Self-Correction) Protocol
+*   **Loop:** If an implementation or test fails:
+    1.  The Specialist must analyze the error/log.
+    2.  Write a 1-sentence "Self-Reflection" (e.g., *"The dependency injection was misconfigured in the constructor"*).
+    3.  Apply the fix.
+*   **Persistence:** Save Failure/Solution pairs into `Memory/ErrorLogs.md` so the team learns from errors.
+
+### B. FinOps (Dynamic Resource Allocation)
+*   **Task Categorization:**
+    *   **Tier 1 (Low Complexity):** Reading files, simple logs, basic file operations. *Use:* `flash` or `mini` models.
+    *   **Tier 2 (High Complexity):** Architectural design, debugging, logic-heavy tasks. *Use:* `pro` models.
+*   **Protocol:** Master Orchestrator MUST check the task complexity before spawning specialists.
+
+## 4. Operational Requirements
+*   **XML Task Bus:** All instructions to sub-agents must be structured:
+    ```xml
+    <task>
+      <name>...</name>
+      <specialist>...</specialist>
+      <action>...</action>
+      <verify>...</verify>
+    </task>
+    ```
+*   **Security Auditor:** Every `git commit` requires a mandatory pass by the **Critic/Auditor Specialist** to prevent secret leakage.
+*   **True E2E Testing:** Terminal output is the source of truth for success. Screenshots are secondary receipts only.
+
+## 5. Design Specs for Telegram Channel
+- **Success Channel:** Short, high-level heartbeat messages.
+- **Error Channel/Thread:** Detailed trace logs (including the XML task bus and error stack traces).
+
+## 6. DevSecOps Protocols
+*   **Shift-Left Security:** Security checks must occur during the planning (`Architect Specialist`) and coding (`Coder Specialist`) phases, not just at the end.
+*   **Dependency Scanning:** The `Critic/Auditor Specialist` must verify that no vulnerable or unvetted third-party packages are introduced.
+*   **Least Privilege Execution:** All containers and runtime environments must be configured to run with the absolute minimum privileges required (e.g., non-root users where possible).
+*   **Immutable Artifacts:** Once a release/build is packaged, it must not be altered. Configuration must be injected dynamically via environment variables (`.env`).
+*   **Continuous Compliance:** Ensure logging and tracing (via Langfuse or similar) do not capture raw PII or unencrypted sensitive data.

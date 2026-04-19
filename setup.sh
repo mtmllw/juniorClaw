@@ -34,6 +34,31 @@ if grep -q "^OPENCLAW_GATEWAY_TOKEN=$" .env; then
   echo "=========================================================="
 fi
 
+# Auto-generate Langfuse Secrets if they are empty
+if grep -q "^LANGFUSE_NEXTAUTH_SECRET=$" .env; then
+  echo "=> Generating secure Langfuse Secrets..."
+  NEXTAUTH_SECRET=$(openssl rand -base64 32 | tr -d '\n' | tr -d '/' | tr -d '+')
+  SALT=$(openssl rand -base64 32 | tr -d '\n' | tr -d '/' | tr -d '+')
+  ENCRYPTION_KEY=$(openssl rand -hex 32)
+  LF_PASSWORD=$(openssl rand -hex 8)
+  LF_PUBLIC_KEY="pk-lf-$(openssl rand -hex 16)"
+  LF_SECRET_KEY="sk-lf-$(openssl rand -hex 16)"
+
+  sed -i "s|^LANGFUSE_NEXTAUTH_SECRET=$|LANGFUSE_NEXTAUTH_SECRET=$NEXTAUTH_SECRET|" .env
+  sed -i "s|^LANGFUSE_SALT=$|LANGFUSE_SALT=$SALT|" .env
+  sed -i "s|^LANGFUSE_ENCRYPTION_KEY=$|LANGFUSE_ENCRYPTION_KEY=$ENCRYPTION_KEY|" .env
+  sed -i "s|^LANGFUSE_INIT_USER_PASSWORD=$|LANGFUSE_INIT_USER_PASSWORD=$LF_PASSWORD|" .env
+  sed -i "s|^LANGFUSE_PUBLIC_KEY=$|LANGFUSE_PUBLIC_KEY=$LF_PUBLIC_KEY|" .env
+  sed -i "s|^LANGFUSE_SECRET_KEY=$|LANGFUSE_SECRET_KEY=$LF_SECRET_KEY|" .env
+  
+  echo "=========================================================="
+  echo "📊 Langfuse Observability is enabled!"
+  echo "   Dashboard: http://127.0.0.1:3000"
+  echo "   Email: admin@openclaw.local"
+  echo "   Password: $LF_PASSWORD"
+  echo "=========================================================="
+fi
+
 # Load variables to validate them
 echo "=> Validating configuration..."
 set -o allexport; source .env; set +o allexport
