@@ -34,6 +34,22 @@ if grep -q "^OPENCLAW_GATEWAY_TOKEN=$" .env; then
   echo "=========================================================="
 fi
 
+# Ensure Langfuse variables exist in .env for backward compatibility
+if ! grep -q "^LANGFUSE_NEXTAUTH_SECRET=" .env; then
+  echo "=> Appending Langfuse configuration to .env..."
+  echo "" >> .env
+  echo "# OBSERVABILITY CONFIGURATION (LANGFUSE)" >> .env
+  echo "LANGFUSE_NEXTAUTH_SECRET=" >> .env
+  echo "LANGFUSE_SALT=" >> .env
+  echo "LANGFUSE_ENCRYPTION_KEY=" >> .env
+  echo "LANGFUSE_NEXTAUTH_URL=http://localhost:3000" >> .env
+  echo "LANGFUSE_INIT_USER_EMAIL=admin@openclaw.local" >> .env
+  echo "LANGFUSE_INIT_USER_PASSWORD=" >> .env
+  echo "LANGFUSE_HOST=http://localhost:3000" >> .env
+  echo "LANGFUSE_PUBLIC_KEY=" >> .env
+  echo "LANGFUSE_SECRET_KEY=" >> .env
+fi
+
 # Auto-generate Langfuse Secrets if they are empty
 if grep -q "^LANGFUSE_NEXTAUTH_SECRET=$" .env; then
   echo "=> Generating secure Langfuse Secrets..."
@@ -200,8 +216,8 @@ if [ "$(stat -c %u ./data)" -ne 1000 ] || [ "$(stat -c %u ./workspace)" -ne 1000
 fi
 
 echo ""
-echo "=> Starting OpenClaw Gateway in detached mode..."
-docker compose up -d --force-recreate openclaw-gateway
+echo "=> Starting OpenClaw Gateway and Langfuse in detached mode..."
+docker compose up -d --force-recreate openclaw-gateway langfuse-server langfuse-db
 
 echo ""
 echo -n "=> Waiting for OpenClaw Gateway to become healthy (timeout: 5 mins)"
